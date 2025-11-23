@@ -1,0 +1,210 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medico</title>
+
+</head>
+<body>
+
+  <!-- === Menu of navigation === -->
+  <nav class="main-nav">
+    <a href="{% url 'chat' %}">Home</a>
+  </nav>
+
+  <!-- === Title === -->
+  <div class="title" id="title">
+    <h1 style="color: #070f54; font-weight: bolder; font-family: Arial, Helvetica, sans-serif; text-align: center;"> 
+      Hello!
+    </h1>
+    <h1 style="color: #1f7c79; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-align: center;">
+      How can I assist you today?
+    </h1>
+  </div>
+
+  <!-- === Form === -->
+  <div class="prompt-container">
+    <div class="prompt-wrapper">
+      <form method="POST" action="" class="prompt-form" id="chat-form">
+        {% csrf_token %}
+        <textarea 
+          name="question" 
+          id="chat-box1" 
+          class="prompt-input" 
+          placeholder="Ask Medico" 
+          required></textarea>
+        <button type="submit" id="send-prompt-btn"><img src="{% static 'image/send.png'%}" alt="send" id="icon"></button>
+      </form>
+
+     {% if response %}
+  <div class="chat-response" style="margin-top: 20px; text-align: center; color: #324241;">
+      <strong>Answer:</strong> {{ response }}
+  </div>
+{% else %}
+  <div class="chat-response" style="margin-top: 20px; text-align: center; color: #324241;"></div>
+{% endif %}
+
+    </div>
+  </div>
+
+  <!-- === STYLE === -->
+  <style>
+    body {
+      background: linear-gradient(45deg, #81aa91, #6bb2bf);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .main-nav {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      margin-top: -250px;
+      margin-right: 30px;
+    }
+
+    .main-nav a {
+      text-decoration: none;
+      color: #092c32;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-weight: bolder;
+      background: linear-gradient(45deg, #a8d5d0, #6bbfbc);
+
+    }
+
+    .main-nav a:hover {
+      background: linear-gradient(45deg, #419086, #6bbfbc);
+      transform: scale(1.05);
+    }
+
+    .prompt-container {
+      width: 90%;
+      max-width: 600px;
+      padding: 20px;
+      background: transparent;
+    }
+
+    .prompt-form {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      border-radius: 50px;
+      box-shadow: 0 10px 30px rgba(66, 66, 66, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(15px);
+      padding: 10px 20px;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .prompt-input {
+      width: 100%;
+      min-height: 40px;
+      background: none;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 1rem;
+      padding: 10px;
+      color: #151111;
+      font-weight: bold;
+    }
+
+    #send-prompt-btn {
+      background-color: #5dbbb8;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      margin-left: 10px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    #send-prompt-btn:hover {
+      background-color: #368b9c;
+    }
+
+    .chat-response {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      display: block;
+    }
+    #icon{
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+
+  <!-- === SCRIPT === -->
+  <script>
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.getElementById("chat-form");
+  const textarea = document.getElementById("chat-box1");
+  const sendBtn = document.getElementById("send-prompt-btn");
+  const titleDiv = document.getElementById("title"); 
+
+  form.addEventListener("submit", async function(e) {
+      e.preventDefault(); 
+
+      const userInput = textarea.value.trim();
+      if (!userInput) return;
+
+      // Show temporary loading message
+      const responseDiv = document.querySelector(".chat-response");
+      if (responseDiv) {
+          responseDiv.innerHTML = "<strong>Answer :</strong> <em>the answer will be provided in few seconds...</em>";
+      }
+
+      // Send request to Django backend
+      const response = await fetch("/medico", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+          },
+          body: new URLSearchParams({
+              "question": userInput
+          })
+      });
+
+      const html = await response.text();
+
+      // Parse response HTML
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      const newResponse = doc.querySelector(".chat-response");
+
+      if (newResponse) {
+          document.querySelector(".chat-response").innerHTML = newResponse.innerHTML;
+          
+          // Hide greeting once a response is shown
+          if (titleDiv) {
+              titleDiv.style.display = "none";
+          }
+      }
+
+      // Clear input after submission
+      textarea.value = "";
+  });
+});
+</script>
+</body>
+
+</html>

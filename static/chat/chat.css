@@ -1,0 +1,46 @@
+
+.navbar{
+    background-color: transparent;
+    align-items:right;
+    gap:20; 
+    margin-top: 30px;
+} 
+.navbar a{
+    text-decoration: none;
+    color: beige;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight:bold;
+    padding-left: 30px;
+    
+
+}
+
+   body{
+    background-color: #0799a7;
+     /* active le mode flexbox */
+    display: flex;
+     /* centre horizontalement */
+    justify-content: center;
+    /* centre verticalement */
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.navbar{
+    background-color: transparent;
+    align-items:right;
+    gap:20; 
+    margin-top: 30px;
+} 
+.navbar a{
+    text-decoration: none;
+    color: beige;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight:bold;
+    padding-left: 30px;
+    
+
+}
+.navbar a:hover{
+    color: antiquewhite;
+}
